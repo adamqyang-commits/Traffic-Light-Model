@@ -1,0 +1,192 @@
+int sensorOne;
+int sensorTwo;
+int sensor1Last = 0;
+int sensor2Last = 0;
+bool light1Green = false;
+bool light2Green = false;
+
+void setup(){
+    pinMode(7, OUTPUT);
+    pinMode(8, OUTPUT);
+    pinMode(9, OUTPUT);
+    pinMode(10, OUTPUT);
+    pinMode(11, OUTPUT);
+    pinMode(12, OUTPUT);
+    digitalWrite(10, HIGH);
+    digitalWrite(9, HIGH);
+}
+
+void sensorDetect(int n, bool i){
+    sensorOne = analogRead(A0);
+    sensorTwo = analogRead(A5);
+    if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+        digitalWrite(n, i);
+    }
+}
+
+void loop(){
+    sensorOne = analogRead(A0);
+    sensorTwo = analogRead(A5);
+    if ((sensorOne < 500) && (sensorTwo >= 500)){ // sensor 1 covered, sensor 2 not covered
+        if (sensor1Last == 1){
+            sensor2Last = 0;
+            if (light1Green == true){
+                digitalWrite(9, LOW);
+                digitalWrite(8, HIGH);
+                digitalWrite(7, LOW);
+                delay(1000);
+            }
+            digitalWrite(12, LOW);
+            digitalWrite(11, LOW);
+            digitalWrite(10, HIGH);
+            while ((sensorOne < 500) && (sensorTwo >= 500)){
+                sensorOne = analogRead(A0);
+                sensorTwo = analogRead(A5);
+                digitalWrite(9, HIGH);
+                digitalWrite(8, LOW);
+                digitalWrite(7, LOW);
+                light1Green = false;
+            }
+    }else if ((sensorTwo < 500) && (sensorOne >= 500)){ // sensor 2 covered, sensor 1 not covered
+        if (sensor2Last == 1){
+            sensor1Last = 0;
+            if (light2Green == true){
+                digitalWrite(12, LOW);
+                digitalWrite(11, HIGH);
+                digitalWrite(10, LOW);
+                delay(1000);
+            }
+            digitalWrite(9, LOW);
+            digitalWrite(8, LOW);
+            digitalWrite(7, HIGH);
+            while ((sensorTwo < 500) && (sensorOne >= 500)){
+                sensorOne = analogRead(A0);
+                sensorTwo = analogRead(A5);
+                digitalWrite(12, HIGH);
+                digitalWrite(11, LOW);
+                digitalWrite(10, LOW);
+                light2Green = false;
+            }
+    }else if (sensor2Last == 1){ // both sensors not covered or both sensors covered, sensor 2 was last covered
+        sensor2Last = 0;
+        delay(2000);
+        digitalWrite(9, LOW);
+        digitalWrite(8, HIGH);
+        digitalWrite(7, LOW);
+        delay(1000);
+        digitalWrite(9, HIGH);
+        digitalWrite(8, LOW);
+        digitalWrite(7, LOW);
+        digitalWrite(12, LOW);
+        digitalWrite(11, LOW);
+        digitalWrite(10, HIGH);
+        light2Green = true;
+        delay(2000);
+        while (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+            sensorOne = analogRead(A0);
+            sensorTwo = analogRead(A5);
+            // yellow
+            sensorDetect(9, LOW);
+            sensorDetect(8, HIGH);
+            sensorDetect(12, LOW);
+            sensorDetect(11, HIGH);
+            if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+                light2Green = false;
+                delay(1000);
+            }
+            // green1
+            sensorDetect(9, LOW);
+            sensorDetect(8, LOW);
+            sensorDetect(7, HIGH);
+            // red2
+            sensorDetect(12, HIGH);
+            sensorDetect(11, LOW);
+            sensorDetect(10, LOW);
+            if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+                light1Green = true;
+                delay(2000);
+            }
+            
+            // yellow1
+            sensorDetect(9, LOW);
+            sensorDetect(8, HIGH);
+            sensorDetect(7, LOW);
+            if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+                light1Green = false;
+                delay(1000);
+            }
+            // red1
+            sensorDetect(9, HIGH);
+            sensorDetect(8, LOW);
+            sensorDetect(7, LOW);
+            // green2
+            sensorDetect(12, LOW);
+            sensorDetect(11, LOW);
+            sensorDetect(10, HIGH);
+            if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+                light2Green = true;
+                delay(2000);
+            }
+    }else{ // both sensors not covered or both sensors covered, sensor 1 was last covered
+        sensor1Last = 0;
+        delay(2000);
+        digitalWrite(12, LOW);
+        digitalWrite(11, HIGH);
+        digitalWrite(10, LOW);
+        delay(1000);
+        digitalWrite(12, HIGH);
+        digitalWrite(11, LOW);
+        digitalWrite(10, LOW);
+        digitalWrite(9, LOW);
+        digitalWrite(8, LOW);
+        digitalWrite(7, HIGH);
+        light1Green = true;
+        delay(2000);
+        while (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+            sensorOne = analogRead(A0);
+            sensorTwo = analogRead(A5);
+            // yellow1
+            sensorDetect(9, LOW);
+            sensorDetect(8, HIGH);
+            sensorDetect(7, LOW);
+            if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+                light1Green = false;
+                delay(1000);
+            }
+            
+            // green2
+            sensorDetect(12, LOW);
+            sensorDetect(11, LOW);
+            sensorDetect(10, HIGH);
+            // red1
+            sensorDetect(9, HIGH);
+            sensorDetect(8, LOW);
+            sensorDetect(7, LOW);
+            if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+                light2Green = false;
+                delay(2000);
+            }
+            
+            // yellow2
+            sensorDetect(12, LOW);
+            sensorDetect(11, HIGH);
+            sensorDetect(10, LOW);
+            if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+                light2Green = false;
+                delay(1000);
+            }
+            // red2
+            sensorDetect(12, HIGH);
+            sensorDetect(11, LOW);
+            sensorDetect(10, LOW);
+            // green1
+            sensorDetect(9, LOW);
+            sensorDetect(8, LOW);
+            sensorDetect(7, HIGH);
+            if (((sensorOne >= 500) && (sensorTwo >= 500)) || ((sensorOne < 500) && (sensorTwo < 500))){
+                light1Green = true;
+                delay(2000);
+            }
+        }
+    }
+}
